@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Mark Attendance</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="container mt-4">
+
+<h2>Mark Attendance</h2>
+
+<form method="POST" action="/mark_attendance">
+
+<input type="hidden" name="staff_id" value="{{ staff_id }}">
+
+<label><b>Select Subject</b></label>
+
+<select name="subject" class="form-control" required>
+<option value="">Select Subject</option>
+<option value="DBMS">DBMS</option>
+<option value="Operating Systems">Operating Systems</option>
+<option value="Networks">Networks</option>
+</select>
+<div class="mb-3">
+
+
+</div>
+
+<table class="table table-bordered mt-4">
+
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Status</th>
+</tr>
+
+{% for student in students %}
+
+<tr>
+
+<td>{{ student[0] }}</td>
+<td>{{ student[1] }}</td>
+
+<td>
+
+<select name="status_{{ student[0] }}" class="form-control">
+
+<option value="Present">Present</option>
+<option value="Absent">Absent</option>
+<option value="OnDuty">On Duty</option>
+
+</select>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+<button class="btn btn-success">
+Submit Attendance
+</button>
+
+</form>
+
+</div>
+
+</body>
+</html>

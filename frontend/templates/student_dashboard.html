@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Student Portal</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+/* Background */
+body{
+    background: linear-gradient(120deg, #f6f9fc, #e9f2ff);
+}
+
+/* Card Animation */
+.card{
+    border-radius: 15px;
+    border: none;
+    transition: 0.3s;
+}
+
+.card:hover{
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* Buttons */
+.btn{
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+/* Sections */
+.section-box{
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-dark bg-dark px-4">
+    <span class="navbar-brand">🎓 Digital Campus</span>
+
+    <div class="d-flex align-items-center">
+
+        <!-- 🔔 NOTIFICATIONS -->
+        <div class="dropdown me-2">
+            <button class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                🔔 Notifications
+            </button>
+
+            <ul class="dropdown-menu">
+
+                {% if notifications %}
+
+                {% for n in notifications %}
+                <li class="dropdown-item">
+
+                    {% if n[1] == "video" %}
+                        🎥 {{ n[0] }}
+                    {% elif n[1] == "material" %}
+                        📂 {{ n[0] }}
+                    {% elif n[1] == "assignment" %}
+                        📝 {{ n[0] }}
+                    {% elif n[1] == "marks" %}
+                        📊 {{ n[0] }}
+                    {% elif n[1] == "chat" %}
+                        💬 {{ n[0] }}
+                    {% else %}
+                        🔔 {{ n[0] }}
+                    {% endif %}
+
+                </li>
+                {% endfor %}
+
+                {% else %}
+                <li class="dropdown-item text-muted">No notifications</li>
+                {% endif %}
+
+            </ul>
+        </div>
+
+        <button class="btn btn-light btn-sm me-2" onclick="showProfile()">
+            👤 Profile
+        </button>
+
+        <a href="/logout" class="btn btn-danger btn-sm">
+            Logout
+        </a>
+    </div>
+</nav>
+
+
+<div class="container mt-4">
+
+<h2 class="text-center">Student Portal</h2>
+
+<p class="text-center text-muted">
+Track your academic performance, assignments, and materials in one place
+</p>
+
+
+<!-- ================= DASHBOARD CARDS ================= -->
+
+<div class="row g-4 text-center mt-3">
+
+<!-- Attendance -->
+<div class="col-md-4">
+<div class="card p-3 shadow">
+<h4>📊 Attendance</h4>
+<p>View attendance details</p>
+<a href="/student_attendance/{{ student_id }}" class="btn btn-primary">
+View Attendance
+</a>
+</div>
+</div>
+
+<!-- Marks -->
+<div class="col-md-4">
+<div class="card p-3 shadow">
+<h4>📚 Marks</h4>
+<p>View internal marks</p>
+<a href="/student_marks/{{ student_id }}" class="btn btn-success">
+View Marks
+</a>
+</div>
+</div>
+
+<!-- Mentor -->
+<div class="col-md-4">
+<div class="card p-3 shadow">
+<h4>👨‍🏫 Mentor</h4>
+<p>View mentor details</p>
+<button class="btn btn-warning" onclick="showMentor()">
+View Mentor
+</button>
+
+<!-- 💬 CHAT BUTTON -->
+{% if mentor %}
+<a href="/chat/{{ student_id }}/1" class="btn btn-dark mt-2">
+💬 Chat with Mentor
+</a>
+{% endif %}
+
+</div>
+</div>
+
+<!-- Assignments -->
+<div class="col-md-4">
+<div class="card p-3 shadow">
+<h4>📝 Assignments</h4>
+<p>Submit your assignments</p>
+<a href="/assignments/{{ student_id }}" class="btn btn-info">
+View Assignments
+</a>
+</div>
+</div>
+
+<!-- Materials -->
+<div class="col-md-4">
+<div class="card p-3 shadow">
+<h4>📂 Study Materials</h4>
+<p>Download notes and lectures</p>
+<a href="/materials/{{ student_id }}" class="btn btn-info">
+View Materials
+</a>
+</div>
+</div>
+
+<!-- Prediction -->
+<div class="col-md-4">
+<div class="card p-3 shadow">
+<h4>📈 Prediction</h4>
+<p>Check performance prediction</p>
+<a href="/prediction/{{ student_id }}" class="btn btn-dark">
+View Prediction
+</a>
+</div>
+</div>
+
+<!-- VIDEO CARD -->
+<div class="col-md-4">
+<div class="card p-3 shadow">
+<h4>🎥 Video Learning</h4>
+<p>Watch subject videos</p>
+
+<a href="/videos/{{ student_id }}" class="btn btn-danger">
+Watch Videos
+</a>
+
+</div>
+</div>
+<!-- 🎉 EVENTS CARD -->
+<div class="col-md-4">
+<div class="card p-3 shadow">
+
+<h4>🎉 College Events</h4>
+<p>Workshops, hackathons & cultural events</p>
+<!-- ✅ ALWAYS SHOW BUTTON -->
+<a href="/events/{{ student_id }}" class="btn btn-primary">
+View Events
+</a>
+
+</div>
+</div>
+<!-- 📢 ANNOUNCEMENTS CARD -->
+<div class="col-md-4">
+<div class="card p-3 shadow">
+
+<h4>📢 Announcements</h4>
+<p>Important notices & updates</p>
+
+<!-- ✅ KEEP BUTTON ALWAYS -->
+<a href="/announcements/{{ student_id }}" class="btn btn-warning">
+View Announcements
+</a>
+
+</div>
+</div>
+
+<!-- ================= MENTOR SECTION ================= -->
+
+<div id="mentorSection" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#f8fafc;
+z-index:9999;
+overflow:auto;
+padding:40px;
+">
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+<h2>👨‍🏫 Mentor Details</h2>
+<button class="btn btn-danger" onclick="hideAll()">✖ Close</button>
+</div>
+
+<table class="table table-bordered text-center mt-3">
+
+<thead class="table-dark">
+<tr>
+<th>Name</th>
+<th>Email</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% if mentor %}
+<tr>
+<td>{{ mentor[0] }}</td>
+<td>{{ mentor[1] }}</td>
+</tr>
+{% else %}
+<tr>
+<td colspan="2">No mentor assigned</td>
+</tr>
+{% endif %}
+
+</tbody>
+
+</table>
+
+</div>
+
+
+</div>
+
+
+<!-- PROFILE MODAL -->
+
+<div id="profileModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#f8f9fa; z-index:9999; overflow:auto;">
+
+<div class="container mt-5">
+
+<div class="text-end">
+<button class="btn btn-danger" onclick="closeProfile()">✖ Close</button>
+</div>
+
+<div class="card shadow p-4 mt-3">
+
+<h2 class="text-center mb-4">👤 Student Profile</h2>
+
+<div class="row">
+
+<div class="col-md-6">
+<p><strong>Name:</strong> {{ student_name }}</p>
+<p><strong>Roll No:</strong> {{ student_id }}</p>
+<p><strong>Email:</strong> {{ student_email }}</p>
+</div>
+
+<div class="col-md-6">
+<p><strong>Phone:</strong> Not Available</p>
+<p><strong>Father Name:</strong> Not Available</p>
+<p><strong>Mother Name:</strong> Not Available</p>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- FOOTER -->
+
+<footer class="text-center mt-5 text-muted">
+<p>© 2026 Digital Campus System</p>
+</footer>
+
+
+<!-- BOOTSTRAP JS (IMPORTANT FOR DROPDOWN) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- JAVASCRIPT -->
+
+<script>
+
+function hideAll(){
+    document.getElementById("mentorSection").style.display = "none";
+   
+}
+
+function showMentor(){
+    hideAll();
+    document.getElementById("mentorSection").style.display = "block";
+}
+function showProfile(){
+    document.getElementById("profileModal").style.display = "block";
+}
+
+function closeProfile(){
+    document.getElementById("profileModal").style.display = "none";
+}
+function filterEvents(type, btn){
+
+    document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
+    btn.classList.add("active");
+
+    let cards = document.querySelectorAll(".event-card");
+
+    cards.forEach(card => {
+
+        let cardType = card.dataset.type.trim().toLowerCase();
+        let selectedType = type.trim().toLowerCase();
+
+        if(selectedType === "all" || cardType === selectedType){
+
+            card.classList.remove("fade-out");
+            card.classList.add("fade-in");
+
+            setTimeout(() => {
+                card.style.display = "block";
+            }, 200);
+
+        } else {
+
+            card.classList.remove("fade-in");
+            card.classList.add("fade-out");
+
+            setTimeout(() => {
+                card.style.display = "none";
+            }, 200);
+
+        }
+
+    });
+}
+
+
+// 🔍 SEARCH FILTER
+document.getElementById("searchInput").addEventListener("keyup", function(){
+
+    let value = this.value.toLowerCase();
+
+    document.querySelectorAll(".event-card").forEach(card => {
+
+        let title = card.dataset.title.toLowerCase();
+
+        card.style.display = title.includes(value) ? "block" : "none";
+
+    });
+
+});
+
+
+// ❤️ LIKE SYSTEM
+function toggleLike(el){
+    el.classList.toggle("active");
+}
+
+
+// 📝 REGISTER BUTTON
+function registerEvent(title){
+    alert("Registered for: " + title);
+}
+
+
+// 📦 MODAL POPUP
+function openModal(title, desc, date, image){
+
+    document.getElementById("modalTitle").innerText = title;
+    document.getElementById("modalDesc").innerText = desc;
+    document.getElementById("modalDate").innerText = date;
+    document.getElementById("modalImage").src = image;
+
+    let modal = new bootstrap.Modal(document.getElementById('eventModal'));
+    modal.show();
+}
+
+
+</script>
+
+</body>
+</html>

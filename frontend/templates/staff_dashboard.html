@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Staff Dashboard</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+
+/* ===== GLOBAL ===== */
+body{
+    display: flex;
+    background: linear-gradient(135deg,#eef2ff,#f8fafc);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+    width: 240px;
+    height: 100vh;
+    background: linear-gradient(180deg,#1e293b,#0f172a);
+    color: white;
+    padding: 20px;
+}
+
+.sidebar h4{
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: bold;
+}
+
+.sidebar a{
+    display: block;
+    color: #cbd5f5;
+    padding: 12px;
+    margin: 8px 0;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.sidebar a:hover{
+    background: #334155;
+    color: white;
+    transform: translateX(5px);
+}
+
+/* ===== MAIN ===== */
+.main{
+    flex: 1;
+    padding: 25px;
+}
+
+/* ===== CARDS ===== */
+.card{
+    border-radius: 18px;
+    border: none;
+    transition: 0.3s;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.card:hover{
+    transform: translateY(-6px);
+}
+
+/* ===== BUTTON ===== */
+.btn{
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+/* ===== SECTION BOX ===== */
+.section-box{
+    background: white;
+    padding: 20px;
+    border-radius: 18px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    margin-top: 20px;
+}
+
+/* ===== CHAT BTN ===== */
+.chat-btn{
+    width: 100%;
+    border-radius: 12px;
+}
+
+/* ===== BROADCAST ===== */
+.broadcast-box{
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+}
+
+/* ===== ANIMATION ===== */
+.fade-in{
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- ================= SIDEBAR ================= -->
+
+<div class="sidebar">
+
+<h4>👨‍🏫 Staff Panel</h4>
+
+<a href="#"><i class="fa fa-home"></i> Dashboard</a>
+
+<a href="/my_students/{{ staff_id }}"><i class="fa fa-users"></i> Students</a>
+
+<a href="/attendance/{{ staff_id }}"><i class="fa fa-calendar-check"></i> Attendance</a>
+
+<a href="/marks/{{ staff_id }}"><i class="fa fa-pen"></i> Marks</a>
+
+<a href="#" onclick="showMaterials()"><i class="fa fa-upload"></i> Upload Material</a>
+
+<a href="#" onclick="showAssignments()"><i class="fa fa-book"></i> Assignments</a>
+
+<a href="#" onclick="showMentor()">
+<i class="fa fa-user"></i> Mentor 
+<span class="badge bg-danger">{{ pending_chats|length }}</span>
+</a>
+
+<a href="#" onclick="showVideos()"><i class="fa fa-video"></i> Video Library</a>
+<a href="#" onclick="showAddEvent()">➕ Add Event</a>
+<a href="#" onclick="showAddAnnouncement()">📢 Add Announcement</a>
+
+</div>
+
+<!-- ================= MAIN ================= -->
+
+<div class="main">
+
+<h2 class="mb-4">👨‍🏫 Staff Dashboard</h2>
+
+<div class="row g-4">
+
+<!-- STUDENTS -->
+<div class="col-md-4">
+<div class="card p-4 text-center">
+<i class="fa fa-users fa-2x text-primary mb-2"></i>
+<h5>My Students</h5>
+<a href="/my_students/{{ staff_id }}" class="btn btn-primary mt-2">View</a>
+</div>
+</div>
+
+<!-- ATTENDANCE -->
+<div class="col-md-4">
+<div class="card p-4 text-center">
+<i class="fa fa-calendar-check fa-2x text-success mb-2"></i>
+<h5>Attendance</h5>
+<a href="/attendance/{{ staff_id }}" class="btn btn-success mt-2">Mark</a>
+</div>
+</div>
+
+<!-- MARKS -->
+<div class="col-md-4">
+<div class="card p-4 text-center">
+<i class="fa fa-pen fa-2x text-warning mb-2"></i>
+<h5>Marks</h5>
+<a href="/marks/{{ staff_id }}" class="btn btn-warning mt-2">Enter</a>
+</div>
+</div>
+
+</div>
+
+<!-- ================= MATERIAL ================= -->
+
+<div id="materialSection" class="section-box fade-in" style="display:none;">
+
+<h4>📂 Upload Study Material</h4>
+
+<form action="/upload_material" method="POST" enctype="multipart/form-data">
+
+<input type="hidden" name="staff_id" value="{{ staff_id }}">
+
+<input type="text" name="title" class="form-control mb-2" placeholder="Title" required>
+<input type="text" name="subject" class="form-control mb-2" placeholder="Subject" required>
+<input type="file" name="file" class="form-control mb-2" required>
+
+<button class="btn btn-primary">Upload</button>
+
+</form>
+
+</div>
+
+<!-- ================= ASSIGNMENT ================= -->
+
+<div id="assignmentSection" class="section-box fade-in" style="display:none;">
+
+<h4>📝 Create Assignment</h4>
+
+<form action="/create_assignment" method="POST">
+
+<input type="hidden" name="staff_id" value="{{ staff_id }}">
+
+<input type="text" name="title" class="form-control mb-2" placeholder="Title" required>
+<textarea name="description" class="form-control mb-2" placeholder="Description" required></textarea>
+<input type="text" name="subject" class="form-control mb-2" placeholder="Subject" required>
+<input type="date" name="deadline" class="form-control mb-2" required>
+
+<button class="btn btn-success">Create Assignment</button>
+
+</form>
+
+<hr>
+
+<h5>Assignments Created</h5>
+
+<table class="table table-bordered">
+
+<tr>
+<th>Title</th>
+<th>Subject</th>
+<th>Deadline</th>
+<th>Action</th>
+</tr>
+
+{% for a in assignments %}
+
+<tr>
+<td>{{ a[1] }}</td>
+<td>{{ a[2] }}</td>
+<td>{{ a[3] }}</td>
+
+<td>
+{% if a[3] >= current_date %}
+<a href="/view_submissions/{{ a[0] }}" class="btn btn-primary btn-sm">View</a>
+{% else %}
+<span class="badge bg-secondary">Closed</span>
+{% endif %}
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+<!-- ================= MENTOR ================= -->
+
+<div id="mentorSection" class="section-box fade-in" style="display:none;">
+
+<h4>👤 Mentor Details</h4>
+
+<p><b>Name:</b> {{ mentor_name }}</p>
+<p><b>Email:</b> {{ mentor_email }}</p>
+<p><b>Department:</b> {{ mentor_dept }}</p>
+
+<hr>
+
+<h5>💬 Chat with Student</h5>
+
+<select class="form-control mb-2" onchange="openChat(this.value)">
+<option value="">-- Select Student --</option>
+
+{% for s in students %}
+<option value="{{ s[0] }}">{{ s[1] }} ({{ s[0] }})</option>
+{% endfor %}
+
+</select>
+
+<button class="btn btn-dark chat-btn" onclick="goToChat()">Open Chat</button>
+
+<hr>
+
+<h5>💬 Student Messages</h5>
+
+{% if chat_list %}
+
+<table class="table table-hover">
+
+<tr>
+<th>Student</th>
+<th>Unread</th>
+<th>Action</th>
+</tr>
+
+{% for c in chat_list %}
+
+<tr>
+
+<td>
+<b>{{ c[1] }}</b><br>
+
+{% if last_messages[c[0]] %}
+<small class="text-muted">
+{{ last_messages[c[0]] }}
+</small>
+{% endif %}
+
+</td>
+
+<td>
+{% if c[2] > 0 %}
+<span class="badge bg-danger">{{ c[2] }}</span>
+{% else %}
+<span class="text-muted">0</span>
+{% endif %}
+</td>
+
+<td>
+<a href="/staff_chat/{{ staff_id }}/{{ c[0] }}" class="btn btn-primary btn-sm">
+    Reply
+</a>
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+{% else %}
+
+<p class="text-muted">No messages yet</p>
+
+{% endif %}
+
+<hr>
+
+<h5>📢 Broadcast</h5>
+
+<form action="/send_broadcast" method="POST" class="broadcast-box p-3">
+
+<input type="hidden" name="staff_id" value="{{ staff_id }}">
+
+<textarea name="message" class="form-control mb-2" placeholder="Message to all students..." required></textarea>
+
+<button class="btn btn-danger w-100">Send to All</button>
+
+</form>
+
+</div>
+
+<!-- ================= VIDEO ================= -->
+
+<div id="videoSection" class="section-box fade-in" style="display:none;">
+
+<h4>🎥 Video Library</h4>
+
+<form action="/add_video" method="POST" class="mb-4">
+
+<input type="hidden" name="staff_id" value="{{ staff_id }}">
+
+<input type="text" name="title" class="form-control mb-2" placeholder="Title" required>
+<input type="text" name="subject" class="form-control mb-2" placeholder="Subject" required>
+<input type="text" name="youtube_link" class="form-control mb-2" placeholder="YouTube Link" required>
+
+<button class="btn btn-danger">Upload</button>
+
+</form>
+
+<div class="row">
+
+{% for v in videos %}
+
+<div class="col-md-6 mb-4">
+
+<div class="card p-3">
+
+<h5>{{ v[0] }}</h5>
+<p class="text-muted">{{ v[1] }}</p>
+
+{% if "v=" in v[2] %}
+{% set video_id = v[2].split("v=")[-1] %}
+{% else %}
+{% set video_id = v[2].split("/")[-1] %}
+{% endif %}
+
+<iframe width="100%" height="200"
+src="https://www.youtube.com/embed/{{ video_id }}"
+allowfullscreen>
+</iframe>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+<div id="addEventSection" class="section-box mt-4" style="display:none;">
+
+<h4>🎉 Add College Event</h4>
+
+<form action="/add_event" method="POST" enctype="multipart/form-data">
+<!-- EVENT TYPE -->
+<select name="type" id="eventType" class="form-control mb-2" required onchange="showEventFields()">
+    <option value="">Select Event Type</option>
+    <option value="Workshop">Workshop</option>
+    <option value="Hackathon">Hackathon</option>
+    <option value="Cultural Event">Cultural Event</option>
+</select>
+
+<input type="text" name="title" class="form-control mb-2" placeholder="Event Title" required>
+
+<textarea name="description" class="form-control mb-2" placeholder="Event Description" required></textarea>
+
+<input type="date" name="date" class="form-control mb-2" required>
+<input type="file" name="image" class="form-control mb-2">
+
+<!-- 🔥 WORKSHOP FIELDS -->
+<div id="workshopFields" style="display:none;">
+    <input type="text" name="speaker" class="form-control mb-2" placeholder="Speaker Name">
+</div>
+
+<!-- 🔥 HACKATHON FIELDS -->
+<div id="hackathonFields" style="display:none;">
+    <input type="text" name="prize" class="form-control mb-2" placeholder="Prize Details">
+</div>
+
+<!-- 🔥 CULTURAL FIELDS -->
+<div id="culturalFields" style="display:none;">
+    <input type="text" name="event_head" class="form-control mb-2" placeholder="Event Head">
+</div>
+
+<button class="btn btn-primary">Add Event</button>
+
+</form>
+
+</div>
+<div id="addAnnouncementSection" class="section-box mt-4" style="display:none;">
+
+<h4>📢 Add Announcement</h4>
+
+<form action="/add_announcement" method="POST" enctype="multipart/form-data">
+
+<input type="text" name="title" class="form-control mb-2" placeholder="Title" required>
+
+<textarea name="content" class="form-control mb-2" placeholder="Announcement Message" required></textarea>
+
+<select name="type" class="form-control mb-2" required>
+    <option value="">Select Type</option>
+    <option value="Exam">📘 Exam</option>
+    <option value="Holiday">🎉 Holiday</option>
+    <option value="Urgent">⚠ Urgent</option>
+    <option value="General">📢 General</option>
+</select>
+
+<input type="file" name="image" class="form-control mb-2">
+
+<button class="btn btn-warning">Add Announcement</button>
+
+</form>
+
+</div>
+
+
+<!-- ================= JS ================= -->
+
+<script>
+
+let selectedStudent = "";
+
+function openChat(id){
+    selectedStudent = id;
+    document.getElementById("replyStudentId").value = id;
+}
+
+function goToChat(){
+    if(selectedStudent){
+        window.location.href = "/staff_chat/{{ staff_id }}/" + selectedStudent;
+    }else{
+        alert("Select student");
+    }
+}
+
+function hideAll(){
+    document.getElementById("materialSection").style.display = "none";
+    document.getElementById("assignmentSection").style.display = "none";
+    document.getElementById("mentorSection").style.display = "none";
+    document.getElementById("videoSection").style.display = "none";
+    document.getElementById("addEventSection").style.display = "none";
+    document.getElementById("addAnnouncementSection").style.display = "none";
+}
+
+function showMaterials(){ hideAll(); document.getElementById("materialSection").style.display="block"; }
+function showAssignments(){ hideAll(); document.getElementById("assignmentSection").style.display="block"; }
+function showMentor(){ hideAll(); document.getElementById("mentorSection").style.display="block"; }
+function showVideos(){ hideAll(); document.getElementById("videoSection").style.display="block"; }
+function showAddEvent(){
+    hideAll();
+    document.getElementById("addEventSection").style.display="block";
+}
+function showEventFields(){
+
+    let type = document.getElementById("eventType").value;
+
+    // hide all first
+    document.getElementById("workshopFields").style.display = "none";
+    document.getElementById("hackathonFields").style.display = "none";
+    document.getElementById("culturalFields").style.display = "none";
+
+    // show based on type
+    if(type === "Workshop"){
+        document.getElementById("workshopFields").style.display = "block";
+    }
+    else if(type === "Hackathon"){
+        document.getElementById("hackathonFields").style.display = "block";
+    }
+    else if(type === "Cultural Event"){
+        document.getElementById("culturalFields").style.display = "block";
+    }
+}
+
+function showAddAnnouncement(){
+    hideAll();
+    document.getElementById("addAnnouncementSection").style.display="block";
+}
+</script>
+
+</body>
+</html>

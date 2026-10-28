@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Announcements</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- 🔥 GOOGLE FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+/* 🌈 BASE */
+body{
+    background:#f8fafc;
+    font-family:'Inter', sans-serif;
+    font-weight:400;
+}
+
+/* HEADER */
+.header{
+    text-align:center;
+    margin:20px 0;
+}
+
+.header h2{
+    font-weight:500;
+}
+
+/* 🔥 FILTER BAR */
+.filter-bar{
+    text-align:center;
+    position:sticky;
+    top:0;
+    background:#f8fafc;
+    padding:10px 0;
+    z-index:10;
+}
+
+.filter-btn{
+    border:none;
+    padding:6px 16px;
+    margin:5px;
+    border-radius:20px;
+    background:#e5e7eb;
+    font-size:14px;
+    font-weight:500;
+    transition:0.3s;
+}
+
+.filter-btn:hover{
+    background:#d1d5db;
+}
+
+.filter-btn.active{
+    background:#111827;
+    color:white;
+}
+
+/* 📦 LIST ITEM */
+.item{
+    background:white;
+    padding:16px;
+    border-radius:14px;
+    margin-bottom:14px;
+    display:flex;
+    gap:14px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.05);
+    transition:0.25s;
+}
+
+.item:hover{
+    transform:translateX(6px);
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* ICON */
+.icon{
+    font-size:22px;
+}
+
+/* TITLE */
+.title{
+    font-weight:500;
+    font-size:15px;
+}
+
+/* MESSAGE */
+.message{
+    font-size:14px;
+    color:#555;
+    font-weight:400;
+    margin-top:2px;
+}
+
+/* DATE */
+.date{
+    font-size:12px;
+    color:#9ca3af;
+    font-weight:300;
+    margin-top:4px;
+}
+
+/* 🏷 TAG */
+.tag{
+    font-size:11px;
+    padding:4px 10px;
+    border-radius:20px;
+    color:white;
+    margin-left:6px;
+    font-weight:500;
+}
+
+/* COLORS */
+.exam{ background:#2563eb; }
+.holiday{ background:#16a34a; }
+.urgent{ background:#dc2626; }
+.general{ background:#6b7280; }
+
+/* DOWNLOAD */
+.download{
+    margin-top:8px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:500;
+}
+
+/* EMPTY */
+.empty{
+    text-align:center;
+    margin-top:50px;
+    color:#9ca3af;
+}
+
+/* ANIMATION */
+.item{
+    animation:fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+<h2>📢 Announcements</h2>
+<a href="/student_dashboard/{{ student_id }}" class="btn btn-dark btn-sm">
+← Back
+</a>
+</div>
+
+<!-- FILTER -->
+<div class="filter-bar">
+<button class="filter-btn active" onclick="filter('all', this)">All</button>
+<button class="filter-btn" onclick="filter('Exam', this)">Exam</button>
+<button class="filter-btn" onclick="filter('Holiday', this)">Holiday</button>
+<button class="filter-btn" onclick="filter('Urgent', this)">Urgent</button>
+<button class="filter-btn" onclick="filter('General', this)">General</button>
+</div>
+
+<!-- LIST -->
+{% for a in announcements %}
+
+<div class="item" data-type="{{ a[5] if a[5] else 'General' }}">
+
+<div class="icon">
+{% if a[5] == "Exam" %} 📘
+{% elif a[5] == "Holiday" %} 🎉
+{% elif a[5] == "Urgent" %} ⚠
+{% else %} 📢
+{% endif %}
+</div>
+
+<div style="flex:1">
+
+<div class="title">
+{{ a[1] }}
+
+{% if a[5] == "Exam" %}
+<span class="tag exam">Exam</span>
+{% elif a[5] == "Holiday" %}
+<span class="tag holiday">Holiday</span>
+{% elif a[5] == "Urgent" %}
+<span class="tag urgent">Urgent</span>
+{% else %}
+<span class="tag general">General</span>
+{% endif %}
+</div>
+
+<div class="message">{{ a[2] }}</div>
+
+<div class="date">📅 {{ a[3] }}</div>
+
+{% if a[4] and '.pdf' in a[4] %}
+<a href="{{ url_for('static', filename=a[4]) }}" download class="btn btn-success btn-sm download">
+📥 Download PDF
+</a>
+{% endif %}
+
+</div>
+
+</div>
+
+{% endfor %}
+
+{% if not announcements %}
+<div class="empty">No announcements available</div>
+{% endif %}
+
+</div>
+
+<script>
+
+function filter(type, btn){
+
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    document.querySelectorAll(".item").forEach(item => {
+
+        let itemType = item.dataset.type || "General";
+
+        if(type === "all" || itemType === type){
+            item.style.display = "flex";
+        } else {
+            item.style.display = "none";
+        }
+
+    });
+}
+
+</script>
+
+</body>
+</html>

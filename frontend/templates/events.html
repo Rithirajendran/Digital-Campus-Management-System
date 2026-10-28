@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>College Events</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+/* 🔥 CARD ANIMATION */
+.card{
+    transition: 0.3s;
+    border-radius: 15px;
+}
+.card:hover{
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+</style>
+
+</head>
+
+<body class="bg-light">
+
+<div class="container mt-4">
+
+<h2 class="text-center">🎉 College Events</h2>
+
+<a href="/student_dashboard/{{ student_id }}" class="btn btn-secondary mb-3">
+← Back
+</a>
+
+<!-- 🔍 SEARCH BAR -->
+<input type="text" id="searchInput" class="form-control mb-3" placeholder="Search events...">
+
+<!-- 🔥 TABS -->
+<ul class="nav nav-tabs mb-4 justify-content-center">
+    <li class="nav-item">
+        <button class="nav-link active" onclick="filterEvents('all', this)">All</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" onclick="filterEvents('Workshop', this)">🎤 Workshop</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" onclick="filterEvents('Hackathon', this)">💻 Hackathon</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" onclick="filterEvents('Cultural Event', this)">🎭 Cultural</button>
+    </li>
+</ul>
+
+<!-- 🔥 UPCOMING SECTION -->
+<h4 class="mb-3">📅 Upcoming Events</h4>
+<div class="row" id="upcomingEvents">
+
+{% for e in events %}
+
+{% if e[3] >= current_date %}
+
+<div class="col-md-4 event-card" data-type="{{ e[2]|trim }}" data-title="{{ e[1] }}">
+<div class="card p-3 mb-3 shadow">
+
+{% if e[8] %}
+<img src="{{ url_for('static', filename=e[8]) }}"
+     class="img-fluid rounded mb-2"
+     style="height:180px; object-fit:cover;">
+{% endif %}
+
+{% if e[2] == "Workshop" %}
+<span class="badge bg-primary mb-2">🎤 Workshop</span>
+{% elif e[2] == "Hackathon" %}
+<span class="badge mb-2" style="background:#6f42c1;">💻 Hackathon</span>
+{% elif e[2] == "Cultural Event" %}
+<span class="badge mb-2" style="background:#e83e8c;">🎭 Cultural</span>
+{% endif %}
+
+<h5>{{ e[1] }}</h5>
+<p class="text-muted">{{ e[4] }}</p>
+<p><b>Date:</b> {{ e[3] }}</p>
+
+</div>
+</div>
+
+{% endif %}
+
+{% endfor %}
+
+</div>
+
+<!-- 🔥 PAST EVENTS -->
+<h4 class="mt-4 mb-3">📁 Past Events</h4>
+<div class="row" id="pastEvents">
+
+{% for e in events %}
+
+{% if e[3] < current_date %}
+
+<div class="col-md-4 event-card" data-type="{{ e[2]|trim }}" data-title="{{ e[1] }}">
+<div class="card p-3 mb-3 shadow">
+
+{% if e[8] %}
+<img src="{{ url_for('static', filename=e[8]) }}"
+     class="img-fluid rounded mb-2"
+     style="height:180px; object-fit:cover;">
+{% endif %}
+
+<span class="badge bg-secondary mb-2">Past</span>
+
+<h5>{{ e[1] }}</h5>
+<p class="text-muted">{{ e[4] }}</p>
+<p><b>Date:</b> {{ e[3] }}</p>
+
+</div>
+</div>
+
+{% endif %}
+
+{% endfor %}
+
+</div>
+
+</div>
+
+<!-- 🔥 JAVASCRIPT -->
+<script>
+
+// TAB FILTER (FIXED)
+function filterEvents(type, btn){
+
+    document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
+    btn.classList.add("active");
+
+    let cards = document.querySelectorAll(".event-card");
+
+    cards.forEach(card => {
+
+        let cardType = card.dataset.type.trim().toLowerCase();
+        let selectedType = type.trim().toLowerCase();
+
+        if(selectedType === "all" || cardType === selectedType){
+            card.style.display = "block";
+        } else {
+            card.style.display = "none";
+        }
+
+    });
+}
+
+// 🔍 SEARCH FILTER
+document.getElementById("searchInput").addEventListener("keyup", function(){
+
+    let value = this.value.toLowerCase();
+
+    document.querySelectorAll(".event-card").forEach(card => {
+
+        let title = card.dataset.title.toLowerCase();
+
+        if(title.includes(value)){
+            card.style.display = "block";
+        } else {
+            card.style.display = "none";
+        }
+
+    });
+
+});
+
+</script>
+
+</body>
+</html>
